@@ -1,0 +1,32 @@
+# .github/workflows/prisma-deploy.yml
+
+name: Deploy Prisma Migrations
+
+on:
+  push:
+    branches:
+      - main # Trigger deployment on push to the main branch
+    paths:
+      - "prisma/migrations/**" # Trigger only when migration files change
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20" # Specify your Node.js version
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run Prisma Deploy
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }} # Use the secret for the production database URL
+        run: npx prisma migrate deploy
